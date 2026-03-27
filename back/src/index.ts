@@ -11,10 +11,10 @@ app.use(express.json());
 app.use(cors());
 
 app.post("/simulate", (req: Request, res: Response) => {
-  const { arrivalTimes, serviceTimes, steps } = req.body;
+  const { arrivalTimes, serviceTimes, steps, startTime, firstArrival, firstDeparture, initialQueue, endTime } = req.body;
 
   const result = simulate(
-    { arrivalTimes, serviceTimes },
+    { arrivalTimes, serviceTimes, startTime, firstArrival, firstDeparture, initialQueue, endTime },
     steps
   );
 

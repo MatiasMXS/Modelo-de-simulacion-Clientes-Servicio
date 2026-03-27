@@ -15,14 +15,23 @@ type Row = {
   PS: number;
   Q: number;
 };
+const timeToSeconds = (time: string): number => {
+  const [h, m, s] = time.split(":").map(Number);
+  return h * 3600 + m * 60 + s;
+};
 
 function App() {
   const [data, setData] = useState<Row[]>([]);
-  const [arrivalInput, setArrivalInput] = useState("45,45,45,45");
-  const [serviceInput, setServiceInput] = useState("40,40,40,40");
+  const [arrivalInput, setArrivalInput] = useState("45");
+  const [serviceInput, setServiceInput] = useState("40");
+  const [initialQueue, setInitialQueue] = useState("3");
+  const [startTime, setStartTime] = useState("08:00:00");
+  const [firstArrival, setFirstArrival] = useState("08:05:00");
+  const [firstDeparture, setFirstDeparture] = useState("08:03:00");
+  const [endTime, setEndTime] = useState("08:20:00");
 
-  const parseInput = (input: string) =>
-    input.split(",").map((n) => Number(n.trim()));
+
+  const parseInput = (input: string) => [Number(input)];
 
   const fetchSimulation = async () => {
     try {
@@ -34,7 +43,12 @@ function App() {
         body: JSON.stringify({
           arrivalTimes: parseInput(arrivalInput),
           serviceTimes: parseInput(serviceInput),
-          steps: 10,
+
+          startTime: timeToSeconds(startTime),
+          firstArrival: timeToSeconds(firstArrival),
+          firstDeparture: timeToSeconds(firstDeparture),
+          initialQueue: Number(initialQueue),
+          endTime: timeToSeconds(endTime),
         }),
       });
 
@@ -56,24 +70,69 @@ function App() {
       </Typography>
 
       <Stack spacing={2} sx={{ mt: 2 }}>
-        <TextField
-          label="Tiempos de llegada (ej: 45,45,45)"
-          fullWidth
-          value={arrivalInput}
-          onChange={(e) => setArrivalInput(e.target.value)}
-        />
+  
+  {/* Tiempos base */}
+  <Stack direction="row" spacing={2}>
+    <TextField
+      label="Llegadas (seg)"
+      value={arrivalInput}
+      onChange={(e) => setArrivalInput(e.target.value)}
+      size="small"
+    />
 
-        <TextField
-          label="Tiempos de servicio (ej: 40,40,40)"
-          fullWidth
-          value={serviceInput}
-          onChange={(e) => setServiceInput(e.target.value)}
-        />
+    <TextField
+      label="Servicio (seg)"
+      value={serviceInput}
+      onChange={(e) => setServiceInput(e.target.value)}
+      size="small"
+    />
+  </Stack>
 
-        <Button variant="contained" onClick={fetchSimulation}>
-          Simular
-        </Button>
-      </Stack>
+  {/* Horas */}
+  <Stack direction="row" spacing={2}>
+    <TextField
+      label="Inicio"
+      value={startTime}
+      onChange={(e) => setStartTime(e.target.value)}
+      size="small"
+    />
+
+    <TextField
+      label="1° Llegada"
+      value={firstArrival}
+      onChange={(e) => setFirstArrival(e.target.value)}
+      size="small"
+    />
+
+    <TextField
+      label="1° Fin"
+      value={firstDeparture}
+      onChange={(e) => setFirstDeparture(e.target.value)}
+      size="small"
+    />
+  </Stack>
+
+  {/* Otros */}
+  <Stack direction="row" spacing={2}>
+    <TextField
+      label="Cola inicial"
+      value={initialQueue}
+      onChange={(e) => setInitialQueue(e.target.value)}
+      size="small"
+    />
+
+    <TextField
+      label="Fin simulación"
+      value={endTime}
+      onChange={(e) => setEndTime(e.target.value)}
+      size="small"
+    />
+  </Stack>
+
+  <Button variant="contained" onClick={fetchSimulation}>
+    Simular
+  </Button>
+</Stack>
 
       <SimulationTable data={data} />
     </Container>
